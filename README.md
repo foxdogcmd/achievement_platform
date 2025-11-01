@@ -84,7 +84,7 @@ Flask  + SQLAlchemy + PostgreSQL + JWT
 
 ### 1️⃣ 克隆项目
 ```bash
-git clone https://github.com/your-username/achievement-management-system.git
+git clone https://github.com/foxdogcmd/achievement_platform.git
 cd achievement-management-system
 ```
 
