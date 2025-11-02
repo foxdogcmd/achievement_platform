@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from ..models.user import User
-from ..models.achievement import Achievement
-from ..models.log import AuditLog
-from .. import db
+from app.models.user import User
+from app.models.achievement import Achievement
+from app.models.audit_log import AuditLog
+from app import db
 
 leader_bp = Blueprint('leader', __name__)
 
@@ -123,36 +123,32 @@ def audit_achievement(achievement_id):
         
         if not user or user.role != 'team_leader':
             return jsonify({'message': '权限不足'}), 403
-        
-        achievement = Achievement.query.filter_by(
+
+        achievement: Achievement | None = Achievement.query.filter_by(
             achievement_id=achievement_id,
             leader_id=current_user_id
         ).first()
         
         if not achievement:
             return jsonify({'message': '成果不存在或无权限审核'}), 404
-        
+        assert isinstance(achievement, Achievement)
         if achievement.status != 'pending':
             return jsonify({'message': '该成果已被审核'}), 400
         
         data = request.get_json()
-        action = data.get('action')  # approve, return, reject
-        comment = data.get('comment', '')
+        action: str = data.get('action')  # approve, return, reject
+        comment: str = data.get('comment', '')
         
-        if action not in ['approve', 'return', 'reject']:
-            return jsonify({'message': '无效的审核操作'}), 400
+        match action:
+            case 'approve':
+                achievement.status = action + 'd'
+            case 'return' | 'reject':
+                if not comment:
+                    return jsonify({'message': '退回或拒绝必须填写审核意见'}), 400
+                achievement.status = action + 'ed'
+            case _:
+                return jsonify({'message': '无效的审核操作'}), 400
         
-        # 退回和拒绝必须填写意见
-        if action in ['return', 'reject'] and not comment:
-            return jsonify({'message': '退回或拒绝必须填写审核意见'}), 400
-        
-        # 更新成果状态
-        if action == 'approve':
-            achievement.status = 'approved'
-        elif action == 'return':
-            achievement.status = 'returned'
-        elif action == 'reject':
-            achievement.status = 'rejected'
         
         # 记录审核日志
         audit_log = AuditLog(
@@ -283,7 +279,7 @@ def get_audit_logs():
                 'achievement_id': log.achievement_id,
                 'action': log.action,
                 'comment': log.comment,
-                'audit_time': log.audit_time.isoformat() if log.audit_time else None
+                'audit_time': log.audit_time.isoformat()
             }
             
             # 获取成果标题

@@ -1,21 +1,22 @@
 import uuid
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from .. import db, ma
+from app import db
+from sqlalchemy.orm import Mapped
 
 class User(db.Model):
     """用户模型"""
     __tablename__ = 'users'
     
-    user_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    username = db.Column(db.String(50), unique=True, nullable=False, index=True)
-    password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.Enum('student', 'team_leader', 'admin', name='user_roles'), nullable=False)
-    name = db.Column(db.String(50), nullable=False)
-    class_id = db.Column(db.String(36), db.ForeignKey('classes.class_id'), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    is_active = db.Column(db.Boolean, default=True)
-    
+    user_id: Mapped[str] = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    username: Mapped[str] = db.Column(db.String(50), unique=True, nullable=False, index=True)
+    password_hash: Mapped[str] = db.Column(db.String(255), nullable=False)
+    role: Mapped[str] = db.Column(db.Enum('student', 'team_leader', 'admin', name='user_roles'), nullable=False)
+    name: Mapped[str] = db.Column(db.String(50), nullable=False)
+    class_id: Mapped[str] = db.Column(db.String(36), db.ForeignKey('classes.class_id'), nullable=True)
+    created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.now)
+    is_active: Mapped[bool] = db.Column(db.Boolean, default=True)
+
     # 关系
     class_info = db.relationship('Class', backref='students', lazy=True)
     achievements = db.relationship('Achievement', foreign_keys='Achievement.leader_id', 

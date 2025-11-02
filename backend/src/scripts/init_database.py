@@ -4,16 +4,13 @@
 用于创建数据库表和初始数据
 """
 
-import sys
-import os
 from datetime import datetime
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
 from app import create_app, db
 from app.models import User, Class, Achievement, AuditLog
 from app.models.system_config import SystemConfig
 
-def init_database():
+def main():
     """初始化数据库"""
     app = create_app('development')
     
@@ -163,4 +160,4 @@ def create_initial_data():
     print("系统配置已初始化")
 
 if __name__ == '__main__':
-    init_database()
+    main()

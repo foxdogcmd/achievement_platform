@@ -182,8 +182,10 @@
           <el-descriptions-item label="更新时间">
             {{ formatDateTime(currentAchievement.updated_at) }}
           </el-descriptions-item>
+          <el-descriptions-item label="审核意见" :span="2" v-if="currentAchievement.status !== 'pending'">
+            {{ currentAchievement.comment  }}
+          </el-descriptions-item>       
         </el-descriptions>
-        
         <!-- 佐证材料 -->
         <div class="evidence-section">
           <h4>佐证材料</h4>

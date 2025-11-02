@@ -1,9 +1,13 @@
 import os
 from datetime import timedelta
+from dotenv import load_dotenv
+
+# 加载 .env 文件中的环境变量
+load_dotenv()
 
 class Config:
     """基础配置类"""
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-here'
+    # SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-here'
     
     # 数据库配置
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \

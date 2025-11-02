@@ -1,19 +1,20 @@
-from .. import db
+from app import db
 from datetime import datetime
 import json
+from sqlalchemy.orm import Mapped
 
 class SystemConfig(db.Model):
     """系统配置模型"""
     __tablename__ = 'system_configs'
-    
-    config_id = db.Column(db.Integer, primary_key=True)
-    config_key = db.Column(db.String(100), unique=True, nullable=False, comment='配置键')
-    config_value = db.Column(db.Text, nullable=False, comment='配置值(JSON格式)')
-    description = db.Column(db.String(200), comment='配置描述')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, comment='创建时间')
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, comment='更新时间')
-    
-    def __init__(self, config_key, config_value, description=None):
+
+    config_id: Mapped[int] = db.Column(db.Integer, primary_key=True)
+    config_key: Mapped[str] = db.Column(db.String(100), unique=True, nullable=False, comment='配置键')
+    config_value: Mapped[str] = db.Column(db.Text, nullable=False, comment='配置值(JSON格式)')
+    description: Mapped[str] = db.Column(db.String(200), comment='配置描述')
+    created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.now, comment='创建时间')
+    updated_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now, comment='更新时间')
+
+    def __init__(self, config_key, config_value, description):
         self.config_key = config_key
         self.config_value = json.dumps(config_value, ensure_ascii=False) if isinstance(config_value, (dict, list)) else str(config_value)
         self.description = description
@@ -28,7 +29,7 @@ class SystemConfig(db.Model):
     def set_value(self, value):
         """设置配置值"""
         self.config_value = json.dumps(value, ensure_ascii=False) if isinstance(value, (dict, list)) else str(value)
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now()
     
     def to_dict(self):
         """转换为字典"""

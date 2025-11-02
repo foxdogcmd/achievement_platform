@@ -1,10 +1,9 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime
-from ..models.user import User
-from ..models.achievement import Achievement
-from ..models.class_model import Class
-from .. import db
+from app.models.user import User
+from app.models import AuditLog, Achievement, Class
+from app import db
 
 student_bp = Blueprint('student', __name__)
 
@@ -39,7 +38,13 @@ def get_my_achievements():
         )
         
         return jsonify({
-            'achievements': [achievement.to_dict() for achievement in achievements.items],
+            'achievements': [
+                {
+                    **achievement.to_dict(),
+                    'comment': (auditlog.comment if (auditlog := AuditLog.query.filter_by(achievement_id=achievement.achievement_id).first()) else ''),
+                }
+                for achievement in achievements.items
+            ],
             'total': achievements.total,
             'pages': achievements.pages,
             'current_page': page
