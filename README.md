@@ -20,6 +20,7 @@
 本系统是为中国人民公安大学开发的现代化学生成果登记与管理平台，采用前后端分离架构，提供完整的成果管理解决方案。系统支持学生成果的在线提交、多级审核、智能管理和数据统计功能。
 
 ### 🎯 核心价值
+
 - **🚀 现代化架构**: Vue 3 + Flask + PostgreSQL，性能卓越
 - **🔐 安全可靠**: JWT认证 + 角色权限控制，数据安全有保障
 - **📊 智能统计**: 多维度数据分析，支持图表可视化
@@ -31,6 +32,7 @@
 ## ✨ 功能特性
 
 ### 🎓 学生端功能
+
 - **📝 成果登记**: 支持论文、竞赛、项目、荣誉四大类型
 - **📁 文件管理**: 支持PDF、JPG、PNG格式佐证材料上传
 - **📈 数据统计**: 个人成果统计图表和趋势分析
@@ -38,6 +40,7 @@
 - **✏️ 成果管理**: 查看、修改、删除个人成果
 
 ### 👨‍💼 队长端功能
+
 - **✅ 成果审核**: 三级审核流程（通过/退回/拒绝）
 - **📊 统计报表**: 团队成果统计和数据导出
 - **📋 批量操作**: 高效的成果批量管理
@@ -45,6 +48,7 @@
 - **👥 权限管理**: 管理所属学生的成果审核
 
 ### 🔧 管理员功能
+
 - **👤 用户管理**: 用户增删改查、权限分配、状态管理
 - **🏫 班级管理**: 班级信息维护和学生归属管理
 - **⚙️ 系统配置**: 动态配置成果类型、级别、系统参数
@@ -56,18 +60,22 @@
 ## 🛠 技术栈
 
 ### 前端技术
+
 ```
 Vue 3 (Composition API) + Element Plus + Pinia + Vue Router 4
 ```
+
 - **🎨 UI框架**: Element Plus - 企业级UI组件库
 - **📱 响应式**: 完美适配各种设备尺寸
 - **📊 图表**: ECharts - 丰富的数据可视化
 - **🔄 状态管理**: Pinia - 轻量级状态管理
 
 ### 后端技术
+
 ```
 Flask  + SQLAlchemy + PostgreSQL + JWT
 ```
+
 - **🚀 高性能**: Flask轻量级框架，响应迅速
 - **🗄️ 数据库**: PostgreSQL关系型数据库
 - **🔐 安全认证**: JWT令牌 + 角色权限控制
@@ -78,23 +86,27 @@ Flask  + SQLAlchemy + PostgreSQL + JWT
 ## 🚀 快速开始
 
 ### 环境要求
+
 - Python 3.8+
 - Node.js 16+
 - PostgreSQL 12+
 
 ### 1️⃣ 克隆项目
+
 ```bash
 git clone https://github.com/foxdogcmd/achievement_platform.git
-cd achievement-management-system
+cd achievement_platform
 ```
 
 ### 2️⃣ 数据库配置
+
 ```sql
 -- 创建数据库
 CREATE DATABASE achievement_system;
 ```
 
 ### 3️⃣ 后端启动
+
 ```bash
 # 使用启动脚本（推荐）
 scripts\start_backend.bat
@@ -109,6 +121,7 @@ python run.py
 ```
 
 ### 4️⃣ 前端启动
+
 ```bash
 # 使用启动脚本（推荐）
 scripts\start_frontend.bat
@@ -120,8 +133,9 @@ npm run serve
 ```
 
 ### 5️⃣ 访问系统
-- 前端地址: http://localhost:8080
-- 后端API: http://localhost:5000
+
+- 前端地址: <http://localhost:8080>
+- 后端API: <http://localhost:5000>
 
 ---
 
@@ -160,6 +174,7 @@ npm run serve
 ## 🔌 API文档
 
 ### 🔐 认证接口
+
 ```
 POST /api/auth/login          # 用户登录
 GET  /api/auth/profile        # 获取用户信息
@@ -167,6 +182,7 @@ POST /api/auth/refresh        # 刷新令牌
 ```
 
 ### 🎓 学生接口
+
 ```
 GET    /api/student/achievements     # 获取我的成果
 POST   /api/student/achievements     # 创建成果
@@ -175,6 +191,7 @@ DELETE /api/student/achievements/:id # 删除成果
 ```
 
 ### 👨‍💼 队长接口
+
 ```
 GET  /api/leader/pending-achievements # 获取待审核成果
 POST /api/leader/audit/:id           # 审核成果
@@ -182,13 +199,13 @@ GET  /api/leader/statistics          # 获取统计数据
 ```
 
 ### 🔧 管理员接口
+
 ```
 GET    /api/admin/users        # 用户管理
 GET    /api/admin/classes      # 班级管理
 GET    /api/admin/achievements # 成果管理
 GET    /api/admin/statistics   # 统计数据
 ```
-
 
 ## 🤝 贡献指南
 
@@ -207,6 +224,5 @@ GET    /api/admin/statistics   # 统计数据
 本项目仅供中国人民公安大学内部使用。
 
 write by foxdog
-
 
 </div>
