@@ -365,8 +365,8 @@ def get_system_config():
         current_user_id = get_jwt_identity()
         user = User.query.get(current_user_id)
         
-        if not user:
-            return jsonify({'message': '用户不存在'}), 404
+        if not user or user.role != 'admin':
+            return jsonify({'message': '权限不足'}), 403
         
         # 返回默认系统配置
         config = {
