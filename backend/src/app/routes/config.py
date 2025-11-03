@@ -6,6 +6,34 @@ from .. import db
 
 config_bp = Blueprint('config', __name__)
 
+@config_bp.route('/public/config', methods=['GET'])
+def get_public_system_config():
+    """获取公共系统配置 - 无需认证"""
+    try:
+        # 确保默认配置已初始化
+        SystemConfig.init_default_configs()
+        
+        # 从数据库获取配置（只返回公共可见的配置）
+        config = {
+            'system_name': SystemConfig.get_config('system_name', '学生成果登记与管理系统'),
+            'achievement_types': SystemConfig.get_config('achievement_types', [
+                {'value': 'paper', 'label': '论文'},
+                {'value': 'competition', 'label': '竞赛'},
+                {'value': 'project', 'label': '项目'},
+                {'value': 'honor', 'label': '荣誉'}
+            ]),
+            'achievement_levels': SystemConfig.get_config('achievement_levels', [
+                {'value': 'school', 'label': '校级'},
+                {'value': 'province', 'label': '省部级'},
+                {'value': 'national', 'label': '国家级'}
+            ])
+        }
+        
+        return jsonify({'config': config}), 200
+        
+    except Exception as e:
+        return jsonify({'message': f'获取系统配置失败: {str(e)}'}), 500
+
 @config_bp.route('/config', methods=['GET'])
 @jwt_required()
 def get_system_config():
@@ -32,7 +60,7 @@ def get_system_config():
             ]),
             'achievement_levels': SystemConfig.get_config('achievement_levels', [
                 {'value': 'school', 'label': '校级'},
-                {'value': 'province', 'label': '省级'},
+                {'value': 'province', 'label': '省部级'},
                 {'value': 'national', 'label': '国家级'}
             ]),
             'default_password': SystemConfig.get_config('default_password', 'student123')

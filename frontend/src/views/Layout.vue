@@ -81,6 +81,10 @@
                 <el-icon><School /></el-icon>
                 <span>系统配置</span>
               </el-menu-item>
+              <el-menu-item index="/display">
+                <el-icon><DataBoard /></el-icon>
+                <span>成果展示</span>
+              </el-menu-item>
               <el-menu-item index="/admin/monitor">
                 <el-icon><Document /></el-icon>
                 <span>数据监控</span>
@@ -113,7 +117,8 @@ import {
   Plus, 
   Check, 
   Setting,
-  School
+  School,
+  DataBoard
 } from '@element-plus/icons-vue'
 
 const router = useRouter()

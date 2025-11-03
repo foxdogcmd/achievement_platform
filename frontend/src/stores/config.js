@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import request from '@/utils/request'
+import { getPublicConfig } from '@/api/public'
+import { useUserStore } from '@/stores/user'
 
 // 获取系统配置的API函数
 const getSystemConfig = () => {
@@ -22,7 +24,7 @@ export const useConfigStore = defineStore('config', {
       ],
       achievement_levels: [
         { value: 'school', label: '校级' },
-        { value: 'province', label: '省级' },
+        { value: 'province', label: '省部级' },
         { value: 'national', label: '国家级' }
       ],
       default_password: 'student123'
@@ -60,7 +62,9 @@ export const useConfigStore = defineStore('config', {
     getLevelLabel: (state) => {
       return (value) => {
         const level = state.config.achievement_levels.find(l => l.value === value)
-        return level ? level.label : value
+        if (level) return level.label
+        const fallback = { school: '校级', province: '省部级', national: '国家级' }
+        return fallback[value] || value
       }
     },
 
@@ -81,7 +85,14 @@ export const useConfigStore = defineStore('config', {
       if (this.loaded && !force) return
       
       try {
-        const response = await getSystemConfig()
+        const userStore = useUserStore()
+        let response
+        if (userStore.isLoggedIn) {
+          response = await getSystemConfig()
+        } else {
+          // 未登录使用公共配置接口，避免401拦截导致跳转登录
+          response = await getPublicConfig()
+        }
         this.config = response.data.config
         this.loaded = true
         this.lastUpdated = Date.now()
@@ -132,7 +143,7 @@ export const useConfigStore = defineStore('config', {
         ],
         achievement_levels: [
           { value: 'school', label: '校级' },
-          { value: 'province', label: '省级' },
+          { value: 'province', label: '省部级' },
           { value: 'national', label: '国家级' }
         ],
         default_password: 'student123'

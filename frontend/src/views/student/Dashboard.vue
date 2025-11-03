@@ -68,25 +68,31 @@
         <span>快速操作</span>
       </template>
       <el-row :gutter="20">
-        <el-col :span="6">
+        <el-col :span="4">
           <el-button type="primary" @click="$router.push('/student/achievements/create')" block size="large">
             <el-icon><Plus /></el-icon>
             添加成果
           </el-button>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="4">
           <el-button @click="$router.push('/student/achievements')" block size="large">
             <el-icon><Document /></el-icon>
             查看成果
           </el-button>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="4">
+          <el-button @click="$router.push('/display')" block size="large" type="success">
+            <el-icon><DataBoard /></el-icon>
+            成果展示
+          </el-button>
+        </el-col>
+        <el-col :span="4">
           <el-button @click="refreshData" block size="large">
             <el-icon><Refresh /></el-icon>
             刷新数据
           </el-button>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="4">
           <el-button @click="exportData" block size="large">
             <el-icon><Download /></el-icon>
             导出数据
@@ -100,6 +106,7 @@
 <script setup>
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { useConfigStore } from '@/stores/config'
 import { getStatistics } from '@/api/student'
 import { ElMessage } from 'element-plus'
 import { 
@@ -110,11 +117,13 @@ import {
   Check, 
   RefreshLeft,
   Refresh,
-  Download
+  Download,
+  DataBoard
 } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 
 const userStore = useUserStore()
+const configStore = useConfigStore()
 
 // 数据
 const statistics = reactive({
@@ -132,20 +141,6 @@ const typeChartRef = ref()
 const levelChartRef = ref()
 let typeChart = null
 let levelChart = null
-
-// 类型和级别的中文映射
-const typeMap = {
-  'paper': '论文',
-  'competition': '竞赛',
-  'project': '项目',
-  'honor': '荣誉'
-}
-
-const levelMap = {
-  'school': '校级',
-  'province': '省部级',
-  'national': '国家级'
-}
 
 // 获取统计数据
 const fetchStatistics = async () => {
@@ -174,7 +169,7 @@ const updateTypeChart = () => {
   }
   
   const data = Object.entries(statistics.by_type).map(([key, value]) => ({
-    name: typeMap[key] || key,
+    name: configStore.getTypeLabel(key),
     value
   }))
   
@@ -208,7 +203,7 @@ const updateLevelChart = () => {
   }
   
   const data = Object.entries(statistics.by_level).map(([key, value]) => ({
-    name: levelMap[key] || key,
+    name: configStore.getLevelLabel(key),
     value
   }))
   
@@ -247,7 +242,8 @@ const exportData = () => {
 }
 
 // 组件挂载时获取数据
-onMounted(() => {
+onMounted(async () => {
+  await configStore.smartLoadConfig()
   fetchStatistics()
 })
 </script>

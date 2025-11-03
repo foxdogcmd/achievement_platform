@@ -139,25 +139,31 @@
         <span>快速操作</span>
       </template>
       <el-row :gutter="20">
-        <el-col :span="6">
+        <el-col :span="4">
           <el-button type="primary" @click="$router.push('/leader/audit')" block size="large">
             <el-icon><DocumentChecked /></el-icon>
             成果审核
           </el-button>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="4">
           <el-button @click="$router.push('/leader/manage')" block size="large">
             <el-icon><Setting /></el-icon>
             成果管理
           </el-button>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="4">
+          <el-button @click="$router.push('/display')" block size="large" type="success">
+            <el-icon><DataBoard /></el-icon>
+            成果展示
+          </el-button>
+        </el-col>
+        <el-col :span="4">
           <el-button @click="refreshData" block size="large">
             <el-icon><Refresh /></el-icon>
             刷新数据
           </el-button>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="4">
           <el-button @click="exportReport" block size="large">
             <el-icon><Download /></el-icon>
             导出报表
@@ -172,6 +178,7 @@
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useConfigStore } from '@/stores/config'
 import { getLeaderStatistics, getPendingAchievements, getAuditLogs, exportAchievements } from '@/api/leader'
 import { ElMessage } from 'element-plus'
 import { 
@@ -184,12 +191,14 @@ import {
   ArrowRight,
   Setting,
   Refresh,
-  Download
+  Download,
+  DataBoard
 } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 
 const router = useRouter()
 const userStore = useUserStore()
+const configStore = useConfigStore()
 
 // 数据
 const statistics = reactive({
@@ -211,14 +220,7 @@ const statusChartRef = ref()
 let typeChart = null
 let statusChart = null
 
-// 类型和状态映射
-const typeMap = {
-  'paper': '论文',
-  'competition': '竞赛',
-  'project': '项目',
-  'honor': '荣誉'
-}
-
+// 状态映射
 const actionMap = {
   'approve': '通过',
   'return': '退回',
@@ -272,7 +274,7 @@ const updateTypeChart = () => {
   }
   
   const data = Object.entries(statistics.by_type).map(([key, value]) => ({
-    name: typeMap[key] || key,
+    name: configStore.getTypeLabel(key),
     value
   }))
   
@@ -369,7 +371,7 @@ const exportReport = async () => {
 }
 
 // 获取类型显示文本
-const getTypeDisplay = (type) => typeMap[type] || type
+const getTypeDisplay = (type) => configStore.getTypeLabel(type)
 
 // 获取操作显示文本
 const getActionDisplay = (action) => actionMap[action] || action
@@ -409,7 +411,8 @@ const formatTime = (dateTime) => {
 }
 
 // 组件挂载时获取数据
-onMounted(() => {
+onMounted(async () => {
+  await configStore.smartLoadConfig()
   refreshData()
 })
 </script>

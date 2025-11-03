@@ -282,8 +282,10 @@ import {
   Download
 } from '@element-plus/icons-vue'
 import { getMyAchievements, deleteAchievement as deleteAchievementApi } from '@/api/student'
+import { useConfigStore } from '@/stores/config'
 
 const router = useRouter()
+const configStore = useConfigStore()
 
 // 数据
 const loading = ref(false)
@@ -316,19 +318,9 @@ const sortConfig = reactive({
   order: ''
 })
 
-// 类型映射
-const typeMap = {
-  'paper': '论文',
-  'competition': '竞赛',
-  'project': '项目',
-  'honor': '荣誉'
-}
-
-const levelMap = {
-  'school': '校级',
-  'province': '省部级',
-  'national': '国家级'
-}
+// 类型和级别映射使用 configStore
+const getTypeLabel = (value) => configStore.getTypeLabel(value)
+const getLevelLabel = (value) => configStore.getLevelLabel(value)
 
 const statusMap = {
   'pending': '待审核',
@@ -435,10 +427,10 @@ const canDelete = (row) => {
 }
 
 // 获取类型显示文本
-const getTypeDisplay = (type) => typeMap[type] || type
+const getTypeDisplay = (type) => getTypeLabel(type)
 
 // 获取级别显示文本
-const getLevelDisplay = (level) => levelMap[level] || level
+const getLevelDisplay = (level) => getLevelLabel(level)
 
 // 获取状态显示文本
 const getStatusDisplay = (status) => statusMap[status] || status
@@ -557,7 +549,8 @@ const downloadFile = (filePath) => {
 }
 
 // 组件挂载时获取数据
-onMounted(() => {
+onMounted(async () => {
+  await configStore.smartLoadConfig()
   fetchAchievements()
 })
 </script>

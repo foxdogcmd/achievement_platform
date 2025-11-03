@@ -95,7 +95,7 @@ class SystemConfig(db.Model):
             'achievement_levels': {
                 'value': [
                     {'value': 'school', 'label': '校级'},
-                    {'value': 'province', 'label': '省级'},
+                    {'value': 'province', 'label': '省部级'},
                     {'value': 'national', 'label': '国家级'}
                 ],
                 'description': '获奖级别配置'

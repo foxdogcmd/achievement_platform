@@ -81,6 +81,10 @@ def get_all_achievements():
         per_page = request.args.get('per_page', 10, type=int)
         status = request.args.get('status')
         type_filter = request.args.get('type')
+        level = request.args.get('level')
+        keyword = request.args.get('keyword')
+        sort_by = request.args.get('sort_by', 'created_at')
+        sort_order = request.args.get('sort_order', 'desc')
         
         # 构建查询
         query = Achievement.query.filter_by(leader_id=current_user_id)
@@ -89,11 +93,29 @@ def get_all_achievements():
             query = query.filter_by(status=status)
         if type_filter:
             query = query.filter_by(type=type_filter)
+        if level:
+            query = query.filter_by(level=level)
+        if keyword:
+            query = query.filter(
+                db.or_(
+                    Achievement.title.contains(keyword),
+                    Achievement.description.contains(keyword),
+                    Achievement.remarks.contains(keyword)
+                )
+            )
         
         # 分页查询
-        achievements = query.order_by(Achievement.created_at.desc()).paginate(
-            page=page, per_page=per_page, error_out=False
-        )
+        # 排序
+        try:
+            sort_column = getattr(Achievement, sort_by)
+        except AttributeError:
+            sort_column = Achievement.created_at
+        if sort_order == 'desc':
+            query = query.order_by(sort_column.desc())
+        else:
+            query = query.order_by(sort_column)
+
+        achievements = query.paginate(page=page, per_page=per_page, error_out=False)
         
         # 获取提交人信息
         achievement_list = []

@@ -29,13 +29,14 @@ def create_app(config_name='default'):
     CORS(app, origins=app.config['CORS_ORIGINS'])
     
     # 注册蓝图
-    from .routes import auth_bp, student_bp, leader_bp, admin_bp
+    from .routes import auth_bp, student_bp, leader_bp, admin_bp, public_bp
     from .routes.upload import upload_bp
     from .routes.config import config_bp
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(student_bp, url_prefix='/api/student')
     app.register_blueprint(leader_bp, url_prefix='/api/leader')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
+    app.register_blueprint(public_bp)  # 公开API不需要前缀，已在蓝图中定义
     app.register_blueprint(config_bp, url_prefix='/api')
     app.register_blueprint(upload_bp, url_prefix='/api')
     

@@ -32,18 +32,23 @@
           <el-col :span="4">
             <el-select v-model="filters.type" placeholder="类型筛选" clearable @change="fetchAchievements">
               <el-option label="全部类型" value="" />
-              <el-option label="论文" value="paper" />
-              <el-option label="竞赛" value="competition" />
-              <el-option label="项目" value="project" />
-              <el-option label="荣誉" value="honor" />
+              <el-option 
+                v-for="option in configStore.achievementTypeOptions" 
+                :key="option.value" 
+                :label="option.label" 
+                :value="option.value" 
+              />
             </el-select>
           </el-col>
           <el-col :span="4">
             <el-select v-model="filters.level" placeholder="级别筛选" clearable @change="fetchAchievements">
               <el-option label="全部级别" value="" />
-              <el-option label="校级" value="school" />
-              <el-option label="省级" value="province" />
-              <el-option label="国家级" value="national" />
+              <el-option 
+                v-for="option in configStore.achievementLevelOptions" 
+                :key="option.value" 
+                :label="option.label" 
+                :value="option.value" 
+              />
             </el-select>
           </el-col>
           <el-col :span="6">
@@ -248,7 +253,7 @@
           <el-form-item label="获奖级别" prop="level">
             <el-select v-model="editForm.level" placeholder="请选择获奖级别" style="width: 100%">
               <el-option label="校级" value="school" />
-              <el-option label="省级" value="province" />
+              <el-option label="省部级" value="province" />
               <el-option label="国家级" value="national" />
             </el-select>
           </el-form-item>
@@ -337,6 +342,10 @@ import {
   Picture
 } from '@element-plus/icons-vue'
 import { getTeamAchievements, updateAchievementInfo, batchOperateAchievements, exportAchievements } from '@/api/leader'
+import { useConfigStore } from '@/stores/config'
+
+// 配置store
+const configStore = useConfigStore()
 
 // 数据
 const loading = ref(false)
@@ -386,20 +395,6 @@ const editRules = {
   level: [
     { required: true, message: '请选择获奖级别', trigger: 'change' }
   ]
-}
-
-// 类型映射
-const typeMap = {
-  'paper': '论文',
-  'competition': '竞赛',
-  'project': '项目',
-  'honor': '荣誉'
-}
-
-const levelMap = {
-  'school': '校级',
-  'province': '省级',
-  'national': '国家级'
 }
 
 const statusMap = {
@@ -600,8 +595,8 @@ const downloadFile = (filePath) => {
 }
 
 // 获取显示文本
-const getTypeDisplay = (type) => typeMap[type] || type
-const getLevelDisplay = (level) => levelMap[level] || level
+const getTypeDisplay = (type) => configStore.getTypeLabel(type)
+const getLevelDisplay = (level) => configStore.getLevelLabel(level)
 const getStatusDisplay = (status) => statusMap[status] || status
 
 // 获取标签类型
@@ -641,7 +636,8 @@ const formatDateTime = (dateTime) => {
 }
 
 // 组件挂载时获取数据
-onMounted(() => {
+onMounted(async () => {
+  await configStore.smartLoadConfig()
   fetchAchievements()
 })
 </script>

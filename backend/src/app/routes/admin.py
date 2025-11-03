@@ -380,7 +380,7 @@ def get_system_config():
             ],
             'achievement_levels': [
                 {'value': 'school', 'label': '校级'},
-                {'value': 'province', 'label': '省级'},
+                {'value': 'province', 'label': '省部级'},
                 {'value': 'national', 'label': '国家级'}
             ],
             'default_password': 'student123'

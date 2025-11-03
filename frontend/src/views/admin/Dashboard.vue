@@ -137,37 +137,43 @@
         <span>快速操作</span>
       </template>
       <el-row :gutter="20">
-        <el-col :span="4">
+        <el-col :span="3">
           <el-button type="primary" @click="$router.push('/admin/users')" block size="large">
             <el-icon><User /></el-icon>
             用户管理
           </el-button>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="3">
           <el-button @click="$router.push('/admin/config')" block size="large">
             <el-icon><Setting /></el-icon>
             系统配置
           </el-button>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="3">
+          <el-button @click="$router.push('/display')" block size="large" type="success">
+            <el-icon><DataBoard /></el-icon>
+            成果展示
+          </el-button>
+        </el-col>
+        <el-col :span="3">
           <el-button @click="$router.push('/admin/monitor')" block size="large">
             <el-icon><Monitor /></el-icon>
             数据监控
           </el-button>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="3">
           <el-button @click="refreshData" block size="large">
             <el-icon><Refresh /></el-icon>
             刷新数据
           </el-button>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="3">
           <el-button @click="exportAllData" block size="large">
             <el-icon><Download /></el-icon>
             导出数据
           </el-button>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="6">
           <el-button @click="showSystemInfo" block size="large">
             <el-icon><InfoFilled /></el-icon>
             系统信息
@@ -198,6 +204,7 @@
 <script setup>
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { useConfigStore } from '@/stores/config'
 import { getAdminStatistics, getAllUsers, getAllAchievements, exportData } from '@/api/admin'
 import { ElMessage } from 'element-plus'
 import { 
@@ -209,11 +216,13 @@ import {
   Monitor,
   Refresh,
   Download,
-  InfoFilled
+  InfoFilled,
+  DataBoard
 } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 
 const userStore = useUserStore()
+const configStore = useConfigStore()
 
 // 数据
 const statistics = reactive({
@@ -240,13 +249,6 @@ const roleMap = {
   'student': '学生',
   'team_leader': '队长',
   'admin': '管理员'
-}
-
-const typeMap = {
-  'paper': '论文',
-  'competition': '竞赛',
-  'project': '项目',
-  'honor': '荣誉'
 }
 
 // 获取统计数据
@@ -396,7 +398,7 @@ const showSystemInfo = () => {
 const getRoleDisplay = (role) => roleMap[role] || role
 
 // 获取类型显示文本
-const getTypeDisplay = (type) => typeMap[type] || type
+const getTypeDisplay = (type) => configStore.getTypeLabel(type)
 
 // 获取角色标签类型
 const getRoleTagType = (role) => {
@@ -433,7 +435,8 @@ const formatTime = (dateTime) => {
 }
 
 // 组件挂载时获取数据
-onMounted(() => {
+onMounted(async () => {
+  await configStore.smartLoadConfig()
   refreshData()
 })
 </script>

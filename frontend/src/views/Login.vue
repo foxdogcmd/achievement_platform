@@ -4,6 +4,14 @@
     <ThemeToggle />
 
     <div class="form-control" :class="{ 'dark': isDarkMode }">
+      <!-- 返回按钮 -->
+      <button class="back-btn" @click="goBack" title="返回上一页">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        返回
+      </button>
+      
       <div class="login-header">
         <h2 class="title">中国人民公安大学</h2>
         <h3 class="subtitle">学生成果登记与管理系统</h3>
@@ -132,6 +140,11 @@ const handleLogin = async () => {
     loading.value = false
   }
 }
+
+// 返回上一页功能
+const goBack = () => {
+  router.replace('/')
+}
 </script>
 
 <style lang="scss" scoped>
@@ -184,6 +197,48 @@ const handleLogin = async () => {
     background-color: rgba(30, 30, 30, 0.95);
     color: #ffffff;
     box-shadow: 0 15px 25px rgba(0, 0, 0, 0.8);
+  }
+}
+
+.back-btn {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  &:hover {
+    background: rgba(255, 255, 255, 1);
+    color: #2d79f3;
+    border-color: #2d79f3;
+    transform: translateX(-2px);
+  }
+  
+  .form-control.dark & {
+    background: rgba(50, 50, 50, 0.9);
+    color: #ccc;
+    border-color: rgba(255, 255, 255, 0.2);
+    
+    &:hover {
+      background: rgba(70, 70, 70, 1);
+      color: #4a9eff;
+      border-color: #4a9eff;
+    }
   }
 }
 

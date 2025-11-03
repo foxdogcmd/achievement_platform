@@ -282,8 +282,12 @@ import {
   Close
 } from '@element-plus/icons-vue'
 import { getPendingAchievements, auditAchievement as auditAchievementApi } from '@/api/leader'
+import { useConfigStore } from '@/stores/config'
 
 const route = useRoute()
+
+// 配置store
+const configStore = useConfigStore()
 
 // 数据
 const loading = ref(false)
@@ -328,20 +332,6 @@ const auditRules = {
   action: [
     { required: true, message: '请选择审核结果', trigger: 'change' }
   ]
-}
-
-// 类型映射
-const typeMap = {
-  'paper': '论文',
-  'competition': '竞赛',
-  'project': '项目',
-  'honor': '荣誉'
-}
-
-const levelMap = {
-  'school': '校级',
-  'province': '省级',
-  'national': '国家级'
 }
 
 const statusMap = {
@@ -495,8 +485,8 @@ const downloadFile = (filePath) => {
 }
 
 // 获取显示文本
-const getTypeDisplay = (type) => typeMap[type] || type
-const getLevelDisplay = (level) => levelMap[level] || level
+const getTypeDisplay = (type) => configStore.getTypeLabel(type)
+const getLevelDisplay = (level) => configStore.getLevelLabel(level)
 const getStatusDisplay = (status) => statusMap[status] || status
 
 // 获取标签类型
@@ -536,7 +526,8 @@ const formatDateTime = (dateTime) => {
 }
 
 // 组件挂载时获取数据
-onMounted(() => {
+onMounted(async () => {
+  await configStore.smartLoadConfig()
   // 如果有指定的成果ID，直接跳转到审核
   if (route.query.id) {
     // 这里可以根据ID获取特定成果并打开审核对话框
