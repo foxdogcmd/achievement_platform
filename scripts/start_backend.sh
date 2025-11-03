@@ -76,7 +76,9 @@ print_info "初始化命令: uv run python src/scripts/init_database.py"
 
 echo
 print_info "[5/5] 启动Flask应用..."
-print_info "后端服务将在 http://localhost:5000 启动"
+print_info "后端服务将在以下地址启动："
+print_info "  本地访问: http://localhost:5000"
+print_info "  局域网访问: http://[本机IP]:5000"
 print_info "按 Ctrl+C 停止服务"
 echo "========================================"
 

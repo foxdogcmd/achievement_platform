@@ -44,7 +44,9 @@ echo [INFO] 请确保后端服务已在 http://localhost:5000 启动
 
 echo.
 echo [4/4] 启动Vue开发服务器...
-echo [INFO] 前端服务将在 http://localhost:8080 启动
+echo [INFO] 前端服务将在以下地址启动：
+echo [INFO]   本地访问: http://localhost:8080
+echo [INFO]   局域网访问: http://[本机IP]:8080
 echo [INFO] 按 Ctrl+C 停止服务
 echo ========================================
 call npm run serve

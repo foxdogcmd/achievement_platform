@@ -92,7 +92,9 @@ print_warning "如果后端未启动，请先运行: ./scripts/start_backend.sh"
 
 echo
 print_info "启动Vue开发服务器..."
-print_info "前端服务将在 http://localhost:8080 启动"
+print_info "前端服务将在以下地址启动："
+print_info "  本地访问: http://localhost:8080"
+print_info "  局域网访问: http://[本机IP]:8080"
 print_info "按 Ctrl+C 停止服务"
 echo "========================================"
 

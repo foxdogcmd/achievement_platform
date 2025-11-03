@@ -131,8 +131,10 @@ print_header "=== 服务启动完成 ==="
 print_success "所有服务已成功启动！"
 echo
 print_info "服务访问地址："
-print_info "  前端服务: http://localhost:8080"
-print_info "  后端API: http://localhost:5000"
+print_info "  前端服务 - 本地访问: http://localhost:8080"
+print_info "  前端服务 - 局域网访问: http://[本机IP]:8080"
+print_info "  后端API - 本地访问: http://localhost:5000"
+print_info "  后端API - 局域网访问: http://[本机IP]:5000"
 echo
 print_info "服务进程信息："
 print_info "  后端进程 PID: $BACKEND_PID"
