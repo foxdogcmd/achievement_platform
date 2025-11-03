@@ -23,12 +23,15 @@ dependencies = [
 
 [project.scripts]
 init_db = "scripts.init_database:main"
-backend = "app.run:main"
+backend = "src.app.run:main"
 
 [dependency-groups]
 dev = [
     "pymysql>=1.1.2",
 ]
+
+[tool.uv]
+package = true
 
 [[tool.uv.index]]
 url = "https://pypi.mirrors.ustc.edu.cn/simple/"

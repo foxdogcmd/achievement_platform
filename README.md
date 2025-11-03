@@ -73,13 +73,14 @@ Vue 3 (Composition API) + Element Plus + Pinia + Vue Router 4
 ### 后端技术
 
 ```
-Flask  + SQLAlchemy + PostgreSQL + JWT
+Flask + SQLAlchemy + PostgreSQL + JWT + UV
 ```
 
 - **🚀 高性能**: Flask轻量级框架，响应迅速
 - **🗄️ 数据库**: PostgreSQL关系型数据库
 - **🔐 安全认证**: JWT令牌 + 角色权限控制
 - **📁 文件处理**: 支持多格式文件上传和管理
+- **⚡ 包管理**: UV - 极速Python包管理器
 
 ---
 
@@ -87,9 +88,10 @@ Flask  + SQLAlchemy + PostgreSQL + JWT
 
 ### 环境要求
 
-- Python 3.8+
+- Python 3.13+
 - Node.js 16+
 - PostgreSQL 12+
+- UV包管理器 (推荐)
 
 ### 1️⃣ 克隆项目
 
@@ -98,20 +100,47 @@ git clone https://github.com/foxdogcmd/achievement_platform.git
 cd achievement_platform
 ```
 
-### 2️⃣ 数据库配置
+### 2️⃣ 安装UV包管理器（推荐）
+
+UV是一个极速的Python包管理器，比传统的pip快10-100倍：
+
+```bash
+# Windows (推荐使用PowerShell)
+pip install uv
+
+# 或使用官方安装脚本
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# 验证安装
+uv --version
+```
+
+**UV的优势：**
+- ⚡ 极速依赖解析和安装
+- 🔒 自动锁定依赖版本
+- 🎯 内置虚拟环境管理
+- 📦 兼容pip和pyproject.toml
+
+### 3️⃣ 数据库配置
 
 ```sql
 -- 创建数据库
 CREATE DATABASE achievement_system;
 ```
 
-### 3️⃣ 后端启动
+### 4️⃣ 后端启动
 
 ```bash
 # 使用启动脚本（推荐）
 scripts\start_backend.bat
 
-# 或手动启动
+# 或手动启动（使用UV）
+cd backend
+uv sync                    # 同步依赖
+uv run init_db            # 初始化数据库
+uv run backend            # 启动后端服务
+
+# 传统方式（不推荐）
 cd backend
 python -m venv venv
 venv\Scripts\activate
@@ -120,7 +149,7 @@ python ..\scripts\init_database.py
 python run.py
 ```
 
-### 4️⃣ 前端启动
+### 5️⃣ 前端启动
 
 ```bash
 # 使用启动脚本（推荐）
@@ -132,7 +161,7 @@ npm install
 npm run serve
 ```
 
-### 5️⃣ 访问系统
+### 6️⃣ 访问系统
 
 - 前端地址: <http://localhost:8080>
 - 后端API: <http://localhost:5000>
@@ -154,11 +183,13 @@ npm run serve
 ```
 获奖记录平台/
 ├── 📂 backend/                 # Flask后端服务
-│   ├── 📂 app/
-│   │   ├── 📂 models/          # 数据库模型
-│   │   ├── 📂 routes/          # API路由
-│   │   └── 📂 utils/           # 工具函数
-│   └── 📄 requirements.txt     # Python依赖
+│   ├── 📂 src/
+│   │   └── 📂 app/
+│   │       ├── 📂 models/      # 数据库模型
+│   │       ├── 📂 routes/      # API路由
+│   │       └── 📂 utils/       # 工具函数
+│   ├── 📄 pyproject.toml       # UV项目配置
+│   └── 📄 uv.lock             # UV锁定文件
 ├── 📂 frontend/                # Vue 3前端应用
 │   ├── 📂 src/
 │   │   ├── 📂 views/           # 页面组件
