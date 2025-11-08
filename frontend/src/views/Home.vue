@@ -13,7 +13,7 @@
     <!-- 主要内容 -->
     <div v-else class="main-content">
       <div class="header">
-        <h1 class="title">中国人民公安大学</h1>
+        <h1 class="title">信息网络安全学院</h1>
         <h2 class="subtitle">学生成果登记与管理系统</h2>
       </div>
       
@@ -40,7 +40,7 @@
       </div>
       
       <div class="footer">
-        <p>&copy; 2024 中国人民公安大学 学生成果管理系统</p>
+        <p>&copy; 2024 信息网络安全学院 学生成果管理系统</p>
       </div>
     </div>
   </div>

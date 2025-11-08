@@ -13,7 +13,7 @@
       </button>
       
       <div class="login-header">
-        <h2 class="title">中国人民公安大学</h2>
+        <h2 class="title">信息网络安全学院</h2>
         <h3 class="subtitle">学生成果登记与管理系统</h3>
       </div>
       
@@ -48,8 +48,12 @@
         {{ loading ? '登录中...' : '登录' }}
       </button>
       
-      <div class="login-footer">
+  <div class="login-footer">
         <p>请使用学号/工号和密码登录系统</p>
+        <p class="register-tip">
+          还没有账号？
+          <a href="#" @click.prevent="goRegister">去注册</a>
+        </p>
       </div>
     </div>
   </div>
@@ -145,6 +149,11 @@ const handleLogin = async () => {
 const goBack = () => {
   router.replace('/')
 }
+
+// 跳转注册页
+const goRegister = () => {
+  router.push('/register')
+}
 </script>
 
 <style lang="scss" scoped>
@@ -172,6 +181,11 @@ const goBack = () => {
       pointer-events: none;
     }
   }
+}
+
+.register-tip {
+  margin-top: 8px;
+  font-size: 14px;
 }
 
 

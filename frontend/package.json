@@ -1,7 +1,7 @@
 {
   "name": "achievement-management-frontend",
   "version": "1.0.0",
-  "description": "中国人民公安大学学生成果登记与管理系统前端",
+  "description": "信息网络安全学院学生成果登记与管理系统前端",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",

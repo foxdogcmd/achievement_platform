@@ -6,7 +6,7 @@ module.exports = defineConfig({
   // 开发服务器配置
   devServer: {
     port: 8080,
-    host: 'localhost',
+    host: '0.0.0.0', // 允许局域网访问
     open: true,
     // 代理配置，解决跨域问题
     proxy: {

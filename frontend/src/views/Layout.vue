@@ -7,7 +7,7 @@
       <!-- 顶部导航 -->
       <el-header class="layout-header">
         <div class="header-left">
-          <h2>中国人民公安大学学生成果管理系统</h2>
+          <h2>信息网络安全学院学生成果管理系统</h2>
         </div>
         <div class="header-right">
           <el-dropdown @command="handleCommand">
