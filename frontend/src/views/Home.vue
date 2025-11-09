@@ -40,7 +40,7 @@
       </div>
       
       <div class="footer">
-        <p>&copy; 2024 信息网络安全学院 学生成果管理系统</p>
+        <p>&copy; 2025 信息网络安全学院 学生成果管理系统</p>
       </div>
     </div>
   </div>

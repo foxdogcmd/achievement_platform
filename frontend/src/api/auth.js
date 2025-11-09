@@ -45,3 +45,25 @@ export function getUserProfile() {
     method: 'get'
   })
 }
+
+/**
+ * 更新用户个人信息（仅姓名）
+ */
+export function updateUserProfile(data) {
+  return request({
+    url: '/auth/profile',
+    method: 'put',
+    data
+  })
+}
+
+/**
+ * 修改密码
+ */
+export function changePassword(data) {
+  return request({
+    url: '/auth/change_password',
+    method: 'put',
+    data
+  })
+}

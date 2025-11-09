@@ -113,3 +113,65 @@ def get_profile():
         
     except Exception as e:
         return jsonify({'message': f'获取用户信息失败: {str(e)}'}), 500
+
+@auth_bp.route('/profile', methods=['PUT'])
+@jwt_required()
+def update_profile():
+    """更新当前用户的个人信息（仅允许修改姓名）"""
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+
+        if not user:
+            return jsonify({'message': '用户不存在'}), 404
+
+        data = request.get_json() or {}
+        name = data.get('name')
+
+        if name is None or not str(name).strip():
+            return jsonify({'message': '姓名不能为空'}), 400
+
+        # 仅允许修改姓名，避免普通用户随意更改角色/班级
+        user.name = str(name).strip()
+
+        db.session.commit()
+
+        return jsonify({
+            'message': '个人信息更新成功',
+            'user': user.to_dict()
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': f'更新个人信息失败: {str(e)}'}), 500
+
+@auth_bp.route('/change_password', methods=['PUT'])
+@jwt_required()
+def change_password():
+    """修改当前用户密码，需要提供旧密码进行验证"""
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+
+        if not user:
+            return jsonify({'message': '用户不存在'}), 404
+
+        data = request.get_json() or {}
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
+
+        if not old_password or not new_password:
+            return jsonify({'message': '旧密码和新密码均为必填'}), 400
+
+        if not user.check_password(old_password):
+            return jsonify({'message': '旧密码不正确'}), 400
+
+        if len(new_password) < 6:
+            return jsonify({'message': '新密码长度至少为6位'}), 400
+
+        user.set_password(new_password)
+        db.session.commit()
+
+        return jsonify({'message': '密码修改成功'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': f'密码修改失败: {str(e)}'}), 500

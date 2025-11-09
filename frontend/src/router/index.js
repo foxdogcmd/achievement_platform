@@ -49,6 +49,16 @@ const routes = [
       requiresAuth: true 
     },
     children: [
+      // 个人信息页（所有登录用户可访问）
+      {
+        path: '/profile',
+        name: 'Profile',
+        component: () => import('@/views/Profile.vue'),
+        meta: {
+          title: '个人信息',
+          requiresAuth: true
+        }
+      },
       // 学生路由
       {
         path: '/student',

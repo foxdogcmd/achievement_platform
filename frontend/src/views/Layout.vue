@@ -129,7 +129,7 @@ const { isDarkMode } = storeToRefs(themeStore)
 const handleCommand = async (command) => {
   switch (command) {
     case 'profile':
-      // 跳转到个人信息页面
+      router.push('/profile')
       break
     case 'logout':
       try {
