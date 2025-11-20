@@ -151,12 +151,17 @@
           </el-upload>
         </el-form-item>
         
-        <el-form-item>
+      <el-form-item>
           <el-button type="primary" @click="submitForm" :loading="submitting" size="large">
             <el-icon><Check /></el-icon>
-            {{ isEdit ? '更新成果' : '提交审核' }}
+            {{ (isEdit && (currentStatus === 'draft' || currentStatus === 'returned')) ? '提交审核' : (isEdit ? '更新成果' : '提交审核') }}
           </el-button>
-          <el-button v-if="!isEdit" @click="saveDraft" :loading="saving" size="large">
+          <el-button
+            v-if="!isEdit || (isEdit && (currentStatus === 'draft' || currentStatus === 'returned'))"
+            @click="saveDraft"
+            :loading="saving"
+            size="large"
+          >
             <el-icon><Document /></el-icon>
             保存草稿
           </el-button>
@@ -181,8 +186,9 @@ import {
   Refresh, 
   UploadFilled 
 } from '@element-plus/icons-vue'
-import { createAchievement, updateAchievement, getMyAchievements, getLeaders } from '@/api/student'
+import { createAchievement, updateAchievement, getMyAchievements, getLeaders, saveDraftAchievement, updateDraftAchievement } from '@/api/student'
 import { getToken } from '@/utils/auth'
+import { API_BASE } from '@/utils/request'
 import { useConfigStore } from '@/stores/config'
 
 const router = useRouter()
@@ -192,6 +198,8 @@ const configStore = useConfigStore()
 // 判断是否为编辑模式
 const isEdit = computed(() => !!route.query.edit)
 const editId = computed(() => route.query.edit)
+// 当前编辑成果的状态（用于控制按钮显示与文案）
+const currentStatus = ref('')
 
 // 表单引用
 const formRef = ref()
@@ -244,7 +252,8 @@ const rules = {
 }
 
 // 上传配置
-const uploadAction = computed(() => '/api/upload')
+// 统一走后端端口，避免生产环境 80 端口未代理导致 405
+const uploadAction = computed(() => `${API_BASE}/upload`)
 const uploadHeaders = computed(() => ({
   'Authorization': `Bearer ${getToken()}`
 }))
@@ -268,6 +277,8 @@ const loadEditData = async () => {
     const achievement = response.data.achievements[0]
     
     if (achievement) {
+      // 记录当前状态
+      currentStatus.value = achievement.status
       // 填充表单数据
       Object.assign(form, {
         title: achievement.title,
@@ -287,9 +298,10 @@ const loadEditData = async () => {
       
       // 设置文件列表显示
       if (achievement.evidence_files && achievement.evidence_files.length > 0) {
+        const fileBase = API_BASE.replace(/\/api$/, '')
         fileList.value = achievement.evidence_files.map((filePath, index) => ({
           name: filePath.split('/').pop(),
-          url: filePath,
+          url: filePath.startsWith('http') ? filePath : `${fileBase}${filePath}`,
           uid: index
         }))
       }
@@ -375,10 +387,19 @@ const submitForm = async () => {
       submitting.value = true
       try {
         if (isEdit.value) {
-          await updateAchievement(editId.value, form)
-          ElMessage.success('成果更新成功')
+          // 编辑模式：直接更新（并将状态改为pending以供审核）
+          await updateAchievement(editId.value, {
+            ...form,
+            is_draft: false
+          })
+          const submitEditingDraft = currentStatus.value === 'draft' || currentStatus.value === 'returned'
+          ElMessage.success(submitEditingDraft ? '成果提交成功，等待队长审核' : '成果更新成功')
         } else {
-          await createAchievement(form)
+          // 创建模式：创建新成果（直接提交审核，不作为草稿）
+          await createAchievement({
+            ...form,
+            is_draft: false
+          })
           ElMessage.success('成果提交成功，等待队长审核')
         }
         router.push('/student/achievements')
@@ -397,12 +418,56 @@ const saveDraft = async () => {
   
   saving.value = true
   try {
-    // 这里可以实现保存草稿的逻辑
-    ElMessage.success('草稿保存成功')
+    const draftData = {
+      title: form.title,
+      type: form.type,
+      level: form.level,
+      award_date: form.award_date,
+      supervisor: form.supervisor,
+      leader_id: form.leader_id,
+      members: form.members,
+      description: form.description,
+      evidence_files: form.evidence_files,
+      is_draft: true
+    }
+    
+    if (isEdit.value) {
+      // 更新现有草稿
+      await updateDraftAchievement(editId.value, draftData)
+      ElMessage.success('草稿更新成功')
+    } else {
+      // 创建新草稿
+      await saveDraftAchievement(draftData)
+      ElMessage.success('草稿保存成功')
+    }
+    
+    // 可选：保存到本地存储作为备份
+    saveDraftToLocal(draftData)
+    
+    // 返回成就列表
+    setTimeout(() => {
+      router.push('/student/achievements')
+    }, 1000)
   } catch (error) {
-    ElMessage.error('保存草稿失败')
+    ElMessage.error(error.response?.data?.message || '保存草稿失败')
+    console.error('保存草稿失败:', error)
   } finally {
     saving.value = false
+  }
+}
+
+// 保存草稿到本地存储（作为备份）
+const saveDraftToLocal = (data) => {
+  try {
+    const localDrafts = JSON.parse(localStorage.getItem('achievementDrafts') || '{}')
+    const draftKey = isEdit.value ? `draft_${editId.value}` : `draft_${Date.now()}`
+    localDrafts[draftKey] = {
+      ...data,
+      savedAt: new Date().toISOString()
+    }
+    localStorage.setItem('achievementDrafts', JSON.stringify(localDrafts))
+  } catch (error) {
+    console.warn('本地草稿保存失败:', error)
   }
 }
 

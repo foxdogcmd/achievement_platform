@@ -17,6 +17,7 @@
           <el-col :span="6">
             <el-select v-model="filters.status" placeholder="状态筛选" clearable @change="fetchAchievements">
               <el-option label="全部状态" value="" />
+              <el-option label="草稿" value="draft" />
               <el-option label="待审核" value="pending" />
               <el-option label="已通过" value="approved" />
               <el-option label="已退回" value="returned" />
@@ -323,6 +324,7 @@ const getTypeLabel = (value) => configStore.getTypeLabel(value)
 const getLevelLabel = (value) => configStore.getLevelLabel(value)
 
 const statusMap = {
+  'draft': '草稿',
   'pending': '待审核',
   'approved': '已通过',
   'returned': '已退回',
@@ -418,12 +420,12 @@ const deleteAchievement = async (row) => {
 
 // 判断是否可以编辑
 const canEdit = (row) => {
-  return ['pending', 'returned'].includes(row.status)
+  return ['draft', 'pending', 'returned'].includes(row.status)
 }
 
 // 判断是否可以删除
 const canDelete = (row) => {
-  return row.status === 'pending'
+  return row.status === 'draft'
 }
 
 // 获取类型显示文本
@@ -459,6 +461,7 @@ const getLevelTagType = (level) => {
 // 获取状态标签类型
 const getStatusTagType = (status) => {
   const statusColors = {
+    'draft': 'info',
     'pending': 'warning',
     'approved': 'success',
     'returned': 'info',
@@ -504,7 +507,7 @@ const isImageFile = (filePath) => {
 const getFileUrl = (filePath) => {
   // 如果是相对路径，添加基础URL
   if (filePath.startsWith('/')) {
-    return `http://localhost:5000${filePath}`
+    return `http://121.194.211.93:5000${filePath}`
   }
   return filePath
 }

@@ -4,9 +4,12 @@ import { useUserStore } from '@/stores/user'
 import { getToken } from './auth'
 import router from '@/router'
 
+// 后端服务地址（统一前端请求入口）
+export const API_BASE = 'http://121.194.211.93:5000/api'
+
 // 创建axios实例
 const service = axios.create({
-  baseURL: process.env.NODE_ENV === 'development' ? '/api' : '/api',
+  baseURL: API_BASE,
   timeout: 10000
 })
 

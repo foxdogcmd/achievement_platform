@@ -499,22 +499,22 @@ onMounted(async () => {
     }
     
     &.users {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #586fd6ff);
       color: white;
     }
     
     &.achievements {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      background: linear-gradient(135deg, #eaa4f2ff );
       color: white;
     }
     
     &.classes {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      background: linear-gradient(135deg, #81c4ffff );
       color: white;
     }
     
     &.pending {
-      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+      background: linear-gradient(135deg, #9ef3baff );
       color: white;
     }
   }

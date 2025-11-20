@@ -57,7 +57,7 @@ print_success "uv已安装 ($(uv --version))"
 echo
 print_info "[2/5] 同步项目依赖..."
 print_info "使用uv同步依赖包..."
-if ! uv sync; then
+if ! uv sync --index-url https://pypi.tuna.tsinghua.edu.cn/simple/; then
     print_error "依赖同步失败"
     exit 1
 fi

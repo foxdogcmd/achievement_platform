@@ -23,6 +23,7 @@ def get_my_achievements():
         per_page = request.args.get('per_page', 10, type=int)
         status = request.args.get('status')
         type_filter = request.args.get('type')
+        achievement_id = request.args.get('achievement_id')
         
         # 构建查询
         query = Achievement.query.filter_by(submitter_id=current_user_id)
@@ -31,6 +32,8 @@ def get_my_achievements():
             query = query.filter_by(status=status)
         if type_filter:
             query = query.filter_by(type=type_filter)
+        if achievement_id:
+            query = query.filter_by(achievement_id=achievement_id)
         
         # 分页查询
         achievements = query.order_by(Achievement.created_at.desc()).paginate(
@@ -56,7 +59,7 @@ def get_my_achievements():
 @student_bp.route('/achievements', methods=['POST'])
 @jwt_required()
 def create_achievement():
-    """创建成果"""
+    """创建成果或保存草稿"""
     try:
         current_user_id = get_jwt_identity()
         user = User.query.get(current_user_id)
@@ -65,38 +68,41 @@ def create_achievement():
             return jsonify({'message': '权限不足'}), 403
         
         data = request.get_json()
+        is_draft = data.get('is_draft', False)
         
-        # 验证必填字段
-        required_fields = ['title', 'type', 'level', 'award_date', 'leader_id']
-        for field in required_fields:
-            if not data.get(field):
-                return jsonify({'message': f'{field} 不能为空'}), 400
-        
-        # 验证队长是否存在
-        leader = User.query.filter_by(user_id=data['leader_id'], role='team_leader').first()
-        if not leader:
-            return jsonify({'message': '指定的队长不存在'}), 400
+        # 如果不是草稿，验证必填字段
+        if not is_draft:
+            required_fields = ['title', 'type', 'level', 'award_date', 'leader_id']
+            for field in required_fields:
+                if not data.get(field):
+                    return jsonify({'message': f'{field} 不能为空'}), 400
+            
+            # 验证队长是否存在
+            leader = User.query.filter_by(user_id=data['leader_id'], role='team_leader').first()
+            if not leader:
+                return jsonify({'message': '指定的队长不存在'}), 400
         
         # 创建成果
         achievement = Achievement(
-            title=data['title'],
-            type=data['type'],
-            level=data['level'],
-            award_date=datetime.strptime(data['award_date'], '%Y-%m-%d').date() if isinstance(data['award_date'], str) else data['award_date'],
+            title=data.get('title', ''),
+            type=data.get('type', ''),
+            level=data.get('level', ''),
+            award_date=datetime.strptime(data['award_date'], '%Y-%m-%d').date() if data.get('award_date') and isinstance(data['award_date'], str) else data.get('award_date'),
             supervisor=data.get('supervisor'),
             members=data.get('members'),
             class_id=user.class_id,
-            leader_id=data['leader_id'],
+            leader_id=data.get('leader_id'),
             submitter_id=current_user_id,
             description=data.get('description'),
-            evidence_files=data.get('evidence_files', [])
+            evidence_files=data.get('evidence_files', []),
+            status='draft' if is_draft else 'pending'
         )
         
         db.session.add(achievement)
         db.session.commit()
         
         return jsonify({
-            'message': '成果创建成功',
+            'message': '草稿保存成功' if is_draft else '成果创建成功',
             'achievement': achievement.to_dict()
         }), 201
         
@@ -107,7 +113,7 @@ def create_achievement():
 @student_bp.route('/achievements/<achievement_id>', methods=['PUT'])
 @jwt_required()
 def update_achievement(achievement_id):
-    """更新成果"""
+    """更新成果或更新草稿"""
     try:
         current_user_id = get_jwt_identity()
         user = User.query.get(current_user_id)
@@ -123,11 +129,19 @@ def update_achievement(achievement_id):
         if not achievement:
             return jsonify({'message': '成果不存在'}), 404
         
-        # 只有草稿或退回状态的成果可以修改
-        if achievement.status not in ['pending', 'returned']:
+        # 只有草稿、待审核或退回状态的成果可以修改
+        if achievement.status not in ['draft', 'pending', 'returned']:
             return jsonify({'message': '该成果当前状态不允许修改'}), 400
         
         data = request.get_json()
+        is_draft = data.get('is_draft', achievement.status == 'draft')
+        
+        # 如果不是草稿，验证必填字段
+        if not is_draft:
+            required_fields = ['title', 'type', 'level', 'award_date', 'leader_id']
+            for field in required_fields:
+                if not data.get(field):
+                    return jsonify({'message': f'{field} 不能为空'}), 400
         
         # 更新字段
         if 'title' in data:
@@ -137,16 +151,18 @@ def update_achievement(achievement_id):
         if 'level' in data:
             achievement.level = data['level']
         if 'award_date' in data:
-            achievement.award_date = datetime.strptime(data['award_date'], '%Y-%m-%d').date() if isinstance(data['award_date'], str) else data['award_date']
+            if data['award_date']:
+                achievement.award_date = datetime.strptime(data['award_date'], '%Y-%m-%d').date() if isinstance(data['award_date'], str) else data['award_date']
         if 'supervisor' in data:
             achievement.supervisor = data['supervisor']
         if 'leader_id' in data:
             # 验证队长是否存在
-            leader = User.query.filter_by(user_id=data['leader_id'], role='team_leader').first()
-            if leader:
-                achievement.leader_id = data['leader_id']
-            else:
-                return jsonify({'message': '指定的队长不存在'}), 400
+            if data['leader_id']:
+                leader = User.query.filter_by(user_id=data['leader_id'], role='team_leader').first()
+                if leader:
+                    achievement.leader_id = data['leader_id']
+                else:
+                    return jsonify({'message': '指定的队长不存在'}), 400
         if 'members' in data:
             achievement.members = data['members']
         if 'description' in data:
@@ -154,14 +170,17 @@ def update_achievement(achievement_id):
         if 'evidence_files' in data:
             achievement.evidence_files = data['evidence_files']
         
-        # 如果是退回状态，重新提交时改为待审核
-        if achievement.status == 'returned':
+        # 更新状态
+        if is_draft:
+            achievement.status = 'draft'
+        elif achievement.status == 'draft' or achievement.status == 'returned':
+            # 从草稿或退回状态改为待审核
             achievement.status = 'pending'
         
         db.session.commit()
         
         return jsonify({
-            'message': '成果更新成功',
+            'message': '草稿更新成功' if achievement.status == 'draft' else '成果更新成功',
             'achievement': achievement.to_dict()
         }), 200
         
@@ -172,7 +191,7 @@ def update_achievement(achievement_id):
 @student_bp.route('/achievements/<achievement_id>', methods=['DELETE'])
 @jwt_required()
 def delete_achievement(achievement_id):
-    """删除成果"""
+    """删除成果（只能删除草稿）"""
     try:
         current_user_id = get_jwt_identity()
         user = User.query.get(current_user_id)
@@ -188,9 +207,9 @@ def delete_achievement(achievement_id):
         if not achievement:
             return jsonify({'message': '成果不存在'}), 404
         
-        # 只有待审核状态的成果可以删除
-        if achievement.status != 'pending':
-            return jsonify({'message': '该成果当前状态不允许删除'}), 400
+        # 只有草稿状态的成果可以删除
+        if achievement.status != 'draft':
+            return jsonify({'message': '只能删除草稿状态的成果'}), 400
         
         db.session.delete(achievement)
         db.session.commit()

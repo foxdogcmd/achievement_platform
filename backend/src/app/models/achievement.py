@@ -15,12 +15,26 @@ class Achievement(db.Model):
     award_date: Mapped[datetime] = db.Column(db.Date, nullable=False)
     supervisor: Mapped[str] = db.Column(db.String(100), nullable=True)  # 指导教师
     members: Mapped[list[str]] = db.Column(db.JSON, nullable=True)  # 成员名单，存储为JSON数组
-    class_id: Mapped[str] = db.Column(db.String(36), db.ForeignKey('classes.class_id'), nullable=False)
-    leader_id: Mapped[str] = db.Column(db.String(36), db.ForeignKey('users.user_id'), nullable=False)
-    submitter_id: Mapped[str] = db.Column(db.String(36), db.ForeignKey('users.user_id'), nullable=False)  # 提交人
+    # 关联到班级：班级删除时将班级置空，避免级联删除成果
+    class_id: Mapped[str] = db.Column(
+        db.String(36),
+        db.ForeignKey('classes.class_id', ondelete='SET NULL'),
+        nullable=True
+    )
+    # 关联到队长与提交人：用户删除时置空引用，保留成果记录
+    leader_id: Mapped[str] = db.Column(
+        db.String(36),
+        db.ForeignKey('users.user_id', ondelete='SET NULL'),
+        nullable=True
+    )
+    submitter_id: Mapped[str] = db.Column(
+        db.String(36),
+        db.ForeignKey('users.user_id', ondelete='SET NULL'),
+        nullable=True  # 提交人
+    )
     evidence_files: Mapped[list[str]] = db.Column(db.JSON, nullable=True)  # 佐证材料文件路径
-    status: Mapped[str] = db.Column(db.Enum('pending', 'approved', 'rejected', 'returned', name='achievement_status'), 
-                      default='pending', nullable=False)
+    status: Mapped[str] = db.Column(db.Enum('draft', 'pending', 'approved', 'rejected', 'returned', name='achievement_status'), 
+                      default='draft', nullable=False)
     is_public: Mapped[bool] = db.Column(db.Boolean, default=False)  # 是否公开展示
     description: Mapped[str] = db.Column(db.Text, nullable=True)  # 成果描述
     remarks: Mapped[str] = db.Column(db.Text, nullable=True)  # 备注
@@ -28,9 +42,15 @@ class Achievement(db.Model):
     updated_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
     # 关系
-    class_info = db.relationship('Class', backref='achievements', lazy=True)
-    submitter = db.relationship('User', foreign_keys=[submitter_id], backref='submitted_achievements')
-    audit_logs = db.relationship('AuditLog', backref='achievement', lazy='dynamic', cascade='all, delete-orphan')
+    class_info = db.relationship('Class', backref=db.backref('achievements', passive_deletes=True), lazy=True)
+    submitter = db.relationship('User', foreign_keys=[submitter_id], backref=db.backref('submitted_achievements', passive_deletes=True))
+    audit_logs = db.relationship(
+        'AuditLog',
+        backref='achievement',
+        lazy='dynamic',
+        cascade='all, delete-orphan',
+        passive_deletes=True
+    )
     
     @property
     def type_display(self):
@@ -57,6 +77,7 @@ class Achievement(db.Model):
     def status_display(self):
         """状态显示名称"""
         status_map = {
+            'draft': '草稿',
             'pending': '待审核',
             'approved': '已通过',
             'rejected': '已拒绝',

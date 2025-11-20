@@ -25,7 +25,13 @@ class Config:
     ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
     
     # CORS配置
-    CORS_ORIGINS = ["http://localhost:8080", "http://127.0.0.1:8080"]
+    CORS_ORIGINS = ["http://localhost:8080", "http://127.0.0.1:8080", "http://121.194.211.93"]
+
+    # CAS配置
+    # CAS 服务基地址（不包含路径），例如：https://iam.ppsuc.edu.cn
+    CAS_BASE_URL = os.environ.get('CAS_BASE_URL') or 'https://iam.ppsuc.edu.cn'
+    # 应用在CAS注册的回调地址（即service），例如：http://121.194.211.93:5000/api/auth/cas/callback
+    CAS_CALLBACK_URL = os.environ.get('CAS_CALLBACK_URL') or 'http://121.194.211.93:5000/api/auth/cas/callback'
 
 class DevelopmentConfig(Config):
     """开发环境配置"""

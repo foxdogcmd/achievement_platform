@@ -538,7 +538,7 @@ const isImageFile = (filePath) => {
 
 const getFileUrl = (filePath) => {
   if (filePath.startsWith('/')) {
-    return `http://localhost:5000${filePath}`
+    return `http://121.194.211.93:5000${filePath}`
   }
   return filePath
 }

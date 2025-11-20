@@ -9,8 +9,18 @@ class AuditLog(db.Model):
     __tablename__ = 'logs'
     
     log_id: Mapped[str] = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    achievement_id: Mapped[str] = db.Column(db.String(36), db.ForeignKey('achievements.achievement_id'), nullable=False)
-    auditor_id: Mapped[str] = db.Column(db.String(36), db.ForeignKey('users.user_id'), nullable=False)
+    # 关联到成果：删除成果时级联删除对应审核日志
+    achievement_id: Mapped[str] = db.Column(
+        db.String(36),
+        db.ForeignKey('achievements.achievement_id', ondelete='CASCADE'),
+        nullable=False
+    )
+    # 关联到审核人：删除审核人时置空审核人字段
+    auditor_id: Mapped[str] = db.Column(
+        db.String(36),
+        db.ForeignKey('users.user_id', ondelete='SET NULL'),
+        nullable=True
+    )
     action: Mapped[str] = db.Column(db.Enum('approve', 'return', 'reject', name='audit_actions'), nullable=False)
     comment: Mapped[str] = db.Column(db.Text, nullable=True)  # 审核意见
     audit_time: Mapped[datetime] = db.Column(db.DateTime, default=datetime.now, nullable=False)

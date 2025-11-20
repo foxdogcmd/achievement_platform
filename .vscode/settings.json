@@ -1,0 +1,19 @@
+{
+    // Python 配置
+    "python.defaultInterpreterPath": "${workspaceFolder}/backend/venv/Scripts/python.exe",
+    "python.terminal.activateEnvironment": true,
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    
+    // 自动检测虚拟环境
+    "python.venvPath": "${workspaceFolder}/backend",
+    
+    // 自动选择解释器
+    "python.terminal.executeInFileDir": true,
+    
+    // 在终端激活虚拟环境
+    "python.terminal.launchArgs": [
+        "-m",
+        "venv",
+        "${workspaceFolder}/backend/venv"
+    ]
+}

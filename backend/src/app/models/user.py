@@ -13,12 +13,17 @@ class User(db.Model):
     password_hash: Mapped[str] = db.Column(db.String(255), nullable=False)
     role: Mapped[str] = db.Column(db.Enum('student', 'team_leader', 'admin', name='user_roles'), nullable=False)
     name: Mapped[str] = db.Column(db.String(50), nullable=False)
-    class_id: Mapped[str] = db.Column(db.String(36), db.ForeignKey('classes.class_id'), nullable=True)
+    # 关联到班级：删除班级时将用户的班级置空
+    class_id: Mapped[str] = db.Column(
+        db.String(36),
+        db.ForeignKey('classes.class_id', ondelete='SET NULL'),
+        nullable=True
+    )
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.now)
     is_active: Mapped[bool] = db.Column(db.Boolean, default=True)
 
     # 关系
-    class_info = db.relationship('Class', backref='students', lazy=True)
+    class_info = db.relationship('Class', backref=db.backref('students', passive_deletes=True), lazy=True)
     achievements = db.relationship('Achievement', foreign_keys='Achievement.leader_id', 
                                  backref='leader', lazy='dynamic')
     audit_logs = db.relationship('AuditLog', backref='auditor', lazy='dynamic')

@@ -67,3 +67,14 @@ export function changePassword(data) {
     data
   })
 }
+
+/**
+ * 解析 CAS 注册令牌
+ */
+export function getCasTokenInfo(token) {
+  return request({
+    url: '/auth/cas/token_info',
+    method: 'get',
+    params: { token }
+  })
+}

@@ -1,8 +1,11 @@
 import axios from 'axios'
 
+// 后端服务地址（公共接口）
+const API_BASE = 'http://121.194.211.93:5000/api'
+
 // 创建公共API的axios实例，不需要认证
 const publicRequest = axios.create({
-  baseURL: process.env.NODE_ENV === 'development' ? '/api' : '/api',
+  baseURL: API_BASE,
   timeout: 10000
 })
 

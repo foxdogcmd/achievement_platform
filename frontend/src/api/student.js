@@ -12,13 +12,27 @@ export function getMyAchievements(params) {
 }
 
 /**
- * 创建成果
+ * 创建成果或保存草稿
  */
 export function createAchievement(data) {
   return request({
     url: '/student/achievements',
     method: 'post',
     data
+  })
+}
+
+/**
+ * 保存成果草稿
+ */
+export function saveDraftAchievement(data) {
+  return request({
+    url: '/student/achievements',
+    method: 'post',
+    data: {
+      ...data,
+      is_draft: true
+    }
   })
 }
 
@@ -30,6 +44,20 @@ export function updateAchievement(id, data) {
     url: `/student/achievements/${id}`,
     method: 'put',
     data
+  })
+}
+
+/**
+ * 更新成果草稿
+ */
+export function updateDraftAchievement(id, data) {
+  return request({
+    url: `/student/achievements/${id}`,
+    method: 'put',
+    data: {
+      ...data,
+      is_draft: true
+    }
   })
 }
 
